@@ -14,3 +14,7 @@ def read_products():
 def read_one_product(id: int):
     pass
 
+@app.post("/product")
+def create_one_product():
+    pass
+
