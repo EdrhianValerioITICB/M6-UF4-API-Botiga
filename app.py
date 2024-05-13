@@ -14,3 +14,14 @@ def read_products():
 def read_one_product(id: int):
     pass
 
+@app.put("/product/{id}")
+def update_product(id: int):
+    pass
+
+@app.delete("/product/{id}")
+def delte_product(id: int):
+    pass
+
+@app.get("/productAll/")
+def getAll_products():
+    pass
