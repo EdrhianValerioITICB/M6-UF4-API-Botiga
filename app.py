@@ -2,6 +2,7 @@ from typing import Union
 from fastapi import FastAPI, File, UploadFile
 import botiga_db
 from pydantic import BaseModel
+import producte
 
 app = FastAPI()
 
@@ -20,15 +21,15 @@ class product(BaseModel):
     company: str
     price: float
     units: int
-    subcategory: subcategory
+    subcategory_id: int
 
 @app.get("/products")
 def read_products():
-    return botiga_db.read()
+    return producte.productes_schema(botiga_db.read())
 
 @app.get("/product/{id}")
 def read_one_product(id: int):
-    return botiga_db.read_one(id)
+    return producte.producte_schema(botiga_db.read_one(id))
 
 @app.post("/product")
 def create_one_product(data: product):
@@ -53,5 +54,5 @@ def getAll_products():
     return botiga_db.readAll()
 
 @app.post("/massivo")
-async def carrega_massiva(file: UploadFile):
+async def carrega_massiva(file: UploadFile = File(...)):
     return botiga_db.carregar_csv(file)
