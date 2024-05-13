@@ -1,4 +1,7 @@
 from client import db_client
+import datetime
+
+
 
 def read():
     try:
@@ -19,7 +22,7 @@ def read_one(id):
     try:
         conn = db_client()
         cur = conn.cursor()
-        query = cur.execute("select * from PRODUCT WHERE id = %s")
+        query = "select * from product where product_id = %s"
         value = (id, )
         cur.execute(query, value)
         product = cur.fetchone()
@@ -32,12 +35,19 @@ def read_one(id):
     finally:
         conn.close()
 
-def afegir_producte(name, description, company, price, units, subcategory, created_at, updated_at):
+def afegir_producte(name, description, company, price, units, subcategory_id):
     try:
         conn = db_client()  
         cur = conn.cursor()
-        query = "INSERT INTO PRODUCT (name, description, company, price, units, subcategory, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-        values = (name, description, company, price, units, subcategory, created_at, updated_at)
+
+        current_timestamp = datetime.datetime.now()
+        formatted_timestamp = current_timestamp.strftime("%Y-%m-%d %H:%M:%S")
+
+        created_at = formatted_timestamp
+        updated_at = formatted_timestamp
+
+        query = "INSERT INTO product (name, description, company, price, units, subcategory_id, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+        values = (name, description, company, price, units, subcategory_id, created_at, updated_at)
         cur.execute(query, values)
         conn.commit()
         return {
@@ -95,5 +105,43 @@ def update_producte(id, price, units):
         }
     except Exception as e:
         return {"status": -1, "message": f"Error de conexió{e}"}
+    finally:
+        conn.close()
+def carregar_csv(file):
+    # id_categoria,nom_categoria,id_subcategoria,nom_subcategoria,id_producto,nom_producto,descripcion_producto,companyia,precio,unidades
+    # from a csv file, fill database
+    try:
+        conn = db_client()  
+        cur = conn.cursor()
+                    
+        with open(file, 'r') as f:
+            current_timestamp = datetime.datetime.now()
+            formatted_timestamp = current_timestamp.strftime("%Y-%m-%d %H:%M:%S")
+
+            lines = f.readlines()
+
+            for line in lines:
+
+                values = line.split(',')
+
+                categoriaQuery = "INSERT IGNORE INTO category (name, created_at, updated_at) VALUES (%s, %s, %s)"
+                categoriaValues = (values[1], formatted_timestamp, formatted_timestamp)
+                cur.execute(categoriaQuery, categoriaValues)
+
+                subcategoriaQuery = "INSERT IGNORE INTO subcategory (name, category_id, created_at, updated_at) VALUES (%s, %s, %s, %s)"
+                subcategoriaValues = (values[3], values[2], formatted_timestamp, formatted_timestamp)
+                cur.execute(subcategoriaQuery, subcategoriaValues)
+
+                productQuery = "INSERT IGNORE INTO product (name, description, company, price, units, subcategory_id, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+                productValues = (values[5], values[6], values[7], values[8], values[9], values[2], formatted_timestamp, formatted_timestamp)
+                cur.execute(productQuery, productValues)            
+        conn.commit()
+        return {
+            "message": "Producte afegit correctament"
+        }
+
+    except Exception as e: 
+        return {"status": -1, "message": f"Error de connexió:{e}"}
+    
     finally:
         conn.close()
