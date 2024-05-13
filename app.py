@@ -5,33 +5,37 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
-class category():
-    name: str
-    create_at: str
-    update_at: str
+# class category():
+#     name: str
+#     create_at: str
+#     update_at: str
 
-class subcategory():
-    name: str
-    category_id: str
-    create_at: str
-    update_at: str
-    category_id: int
+# class subcategory():
+#     name: str
+#     category_id: str
+#     create_at: str
+#     update_at: str
+#     category_id: category
 
-class product(BaseModel):
-    name: str
-    description: str
-    company: str
-    price: float
-    units: int
-    subcategory_id: int
+# class product(BaseModel):
+#     name: str
+#     description: str
+#     company: str
+#     price: float
+#     units: int
+#     subcategory_id: subcategory
 
-@app.get("/product")
+@app.get("/products")
 def read_products():
-    pass
+    return botiga_db.read()
 
 @app.get("/product/{id}")
 def read_one_product(id: int):
-    pass
+    return botiga_db.read_one(id)
+
+@app.post("/product")
+def create_one_product(data):
+    return botiga_db.create(data)
 
 @app.put("/product/{id}")
 def update_product(id: int):
@@ -45,7 +49,5 @@ def delte_product(id: int):
 def getAll_products():
     pass
 
-@app.post("/product")
-def create_one_product():
-    pass
+
 
