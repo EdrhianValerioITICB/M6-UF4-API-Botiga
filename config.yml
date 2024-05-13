@@ -1,6 +1,7 @@
 base de dades:
     motor: mysql
-    host: localhost
-    user: dam_app
-    password: '1234'
-    database: botiga
+    host: "localhost"
+    user: "dam_app"
+    password: "1234"
+    database: "botiga"
+    port: "3306"

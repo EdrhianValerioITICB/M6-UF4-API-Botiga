@@ -25,3 +25,7 @@ def delte_product(id: int):
 @app.get("/productAll/")
 def getAll_products():
     pass
+@app.post("/product")
+def create_one_product():
+    pass
+
