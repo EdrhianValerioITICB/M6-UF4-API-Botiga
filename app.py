@@ -53,5 +53,5 @@ def getAll_products():
     pass
 
 @app.post("/massivo")
-async def carrega_massiva(file: UploadFile):
+async def carrega_massiva(file: UploadFile = File(...)):
     return botiga_db.carregar_csv(file)

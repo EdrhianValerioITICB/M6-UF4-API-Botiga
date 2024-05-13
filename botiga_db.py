@@ -1,8 +1,6 @@
 from client import db_client
 import datetime
 
-
-
 def read():
     try:
         conn = db_client()
@@ -67,15 +65,16 @@ def carregar_csv(file):
         conn = db_client()  
         cur = conn.cursor()
                     
-        with open(file, 'r') as f:
+        with file.file as f:  # Access the file object directly
             current_timestamp = datetime.datetime.now()
             formatted_timestamp = current_timestamp.strftime("%Y-%m-%d %H:%M:%S")
 
             lines = f.readlines()
 
             for line in lines:
+                decoded_line = line.decode('utf-8')
 
-                values = line.split(',')
+                values = decoded_line.split(',')
 
                 categoriaQuery = "INSERT IGNORE INTO category (name, created_at, updated_at) VALUES (%s, %s, %s)"
                 categoriaValues = (values[1], formatted_timestamp, formatted_timestamp)
@@ -98,3 +97,4 @@ def carregar_csv(file):
     
     finally:
         conn.close()
+
