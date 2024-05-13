@@ -51,7 +51,7 @@ def delte_product(id: int):
 
 @app.get("/productAll/")
 def getAll_products():
-    return botiga_db.readAll()
+    return producte.readAll_schema(botiga_db.readAll())
 
 @app.post("/massivo")
 async def carrega_massiva(file: UploadFile = File(...)):

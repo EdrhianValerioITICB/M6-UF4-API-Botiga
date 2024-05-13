@@ -13,3 +13,12 @@ def producte_schema(producte):
 
 def productes_schema(productes):
     return [producte_schema(producte) for producte in productes]
+
+def readAll_schema(result):
+    return [{
+        "categoria": row[0],
+        "subcategoria": row[1],
+        "producto": row[2],
+        "marca": row[3],
+        "precio": row[4]
+    } for row in result]

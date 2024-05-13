@@ -66,6 +66,7 @@ def readAll():
         cursor.execute("SELECT c.name AS categoria, s.name AS subcategoria, p.name AS producto, p.company AS marca, p.price AS precio FROM product p INNER JOIN subcategory s ON p.subcategory_id = s.subcategory_id INNER JOIN category c ON s.category_id = c.category_id; ")
 
         result = cursor.fetchall()
+        return result
 
     except Exception as e:
         return  {"status": -1, "message": f"Error de conexion: {e}"}
@@ -73,13 +74,12 @@ def readAll():
     finally:
         conn.close()
 
-    return result
 
 def delete_product(id):
     try:
         conn = db_client()
         cur = conn.cursor()
-        query = "DELETE FROM product WHERE id = %s;"
+        query = "DELETE FROM product WHERE product_id = %s;"
         cur.execute(query, (id,))
 
         conn.commit()
@@ -93,7 +93,7 @@ def update_producte(id, price, units):
     try:
         conn = db_client()
         cur = conn.cursor()
-        query = "UPDATE product SET price = %s, units = %s WHERE id = %s"
+        query = "UPDATE product SET price = %s, units = %s WHERE product_id = %s;"
         values = (price, units, id)
         cur.execute(query, values)
 
