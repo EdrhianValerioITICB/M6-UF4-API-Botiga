@@ -38,16 +38,16 @@ def create_one_product(data):
     return botiga_db.create(data)
 
 @app.put("/product/{id}")
-def update_product(id: int):
-    pass
+def update_product(id: int, price: float, units: int ):
+    return botiga_db.update_producte(id, price, units)
 
 @app.delete("/product/{id}")
 def delte_product(id: int):
-    pass
+    return botiga_db.delete_product(id)
 
 @app.get("/productAll/")
 def getAll_products():
-    pass
+    return botiga_db.readAll()
 
 
 
