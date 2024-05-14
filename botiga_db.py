@@ -1,7 +1,9 @@
 from client import db_client
-import datetime
+
+# Los metodos para hacer CRUD de botiga
 
 
+# Funcion que devuelve un array de todos los productos dentro de la base de datos
 def read():
     try:
         conn = db_client()
@@ -17,6 +19,7 @@ def read():
     finally:
         conn.close()
 
+# Funcion que, dado un id, devuelve el producto con ese id
 def read_one(id):
     try:
         conn = db_client()
@@ -34,6 +37,7 @@ def read_one(id):
     finally:
         conn.close()
 
+# Funcion que añade un producto a partir de datos necesarios para añadir uno
 def afegir_producte(name, description, company, price, units, subcategory_id):
     try:
         conn = db_client()  
@@ -53,7 +57,14 @@ def afegir_producte(name, description, company, price, units, subcategory_id):
     finally:
         conn.close()
 
-
+"""
+Funcion que devuelve todos los productos con la siguiente informacion:
+- Nombre de la categoria
+- Nombre de la subcategoria
+- Nombre del producto
+- Marca del producto
+- Precio.
+"""
 def readAll():
     try:
         conn = db_client()
@@ -69,7 +80,7 @@ def readAll():
     finally:
         conn.close()
 
-
+# Funcion que elimina un producto de la base de datos a partir de un id pasado como parametro
 def delete_product(id):
     try:
         conn = db_client()
@@ -86,6 +97,7 @@ def delete_product(id):
     finally:
         conn.close()
 
+# Funcion que modifica el precio y las unidades de un producto con un cierto id pasado como parametro
 def update_producte(id, price, units):
     try:
         conn = db_client()
@@ -103,6 +115,15 @@ def update_producte(id, price, units):
     finally:
         conn.close()
 
+"""
+Funcion que, a partir de un archivo csv con campos de
+- Las categorias
+- Las subcategorias
+- Los productos
+Añade las categorias, subcategorias y productos presentes en el archivo
+Esquema:
+id_categoria,nom_categoria,id_subcategoria,nom_subcategoria,id_producto,nom_producto,descripcion_producto,companyia,precio,unidades
+"""
 
 def carregar_csv(file):
     try:
@@ -116,21 +137,21 @@ def carregar_csv(file):
                 decoded_line = line.decode('utf-8')
                 values = decoded_line.strip().split(',')
 
-                # Comprobar si la categoría existe
+                # Comprobar si la categoria existe
                 cur.execute("SELECT * FROM category WHERE category_id = %s", (values[0],))
                 category_exists = cur.fetchone()
 
-                # Insertar o actualizar la categoría
+                # Insertar o actualizar la categoria
                 if category_exists:
                     cur.execute("UPDATE category SET name = %s WHERE category_id = %s", (values[1], values[0]))
                 else:
                     cur.execute("INSERT INTO category (name) VALUES ('%s')", (values[1]))
 
-                # Comprobar si la subcategoría existe
+                # Comprobar si la subcategoria existe
                 cur.execute("SELECT * FROM subcategory WHERE subcategory_id = %s", (values[2],))
                 subcategory_exists = cur.fetchone()
 
-                # Insertar o actualizar la subcategoría
+                # Insertar o actualizar la subcategoria
                 if subcategory_exists:
                     cur.execute("UPDATE subcategory SET name = %s WHERE subcategory_id = %s", (values[3], values[2]))
                 else:

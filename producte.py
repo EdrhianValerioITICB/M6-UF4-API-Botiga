@@ -1,3 +1,4 @@
+# Esquema de un solo producto
 def producte_schema(producte):
     return {
         "id": producte[0],
@@ -11,9 +12,11 @@ def producte_schema(producte):
         "updated_at": producte[8]
     }
 
+# Esquema de todos los productos
 def productes_schema(productes):
     return [producte_schema(producte) for producte in productes]
 
+# Esquema de todos los productos, pero el que se utiliza en el endpoint de readAll
 def readAll_schema(result):
     return [{
         "categoria": row[0],

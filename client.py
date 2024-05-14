@@ -2,9 +2,12 @@ import mysql.connector
 import yaml
 import os
 
+# Obtener el path de config.yml
+# Siempre ha de estar situado en la carpeta raiz del proyecto
 THIS_PATH = os.path.dirname(os.path.abspath(__file__))
 CONFIG_PATH = os.path.join(THIS_PATH, 'config.yml')
 
+# Cargar el .yml para obtener su contenido, a partir de una ruta del archivo de configuracion
 def get_config(config_file_path):
     config={}
     try:
@@ -14,8 +17,8 @@ def get_config(config_file_path):
         print(f"No existeix cap fitxer de configuració: {config_file_path}")
     return config
 
+# Funcion que devuelve una conexion a partir del fichero de configuracion
 def db_client():
-
     try:
         config = get_config(CONFIG_PATH)
 
