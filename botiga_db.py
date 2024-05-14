@@ -1,6 +1,7 @@
 from client import db_client
 import datetime
 
+
 def read():
     try:
         conn = db_client()
@@ -38,14 +39,8 @@ def afegir_producte(name, description, company, price, units, subcategory_id):
         conn = db_client()  
         cur = conn.cursor()
 
-        current_timestamp = datetime.datetime.now()
-        formatted_timestamp = current_timestamp.strftime("%Y-%m-%d %H:%M:%S")
-
-        created_at = formatted_timestamp
-        updated_at = formatted_timestamp
-
-        query = "INSERT INTO product (name, description, company, price, units, subcategory_id, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-        values = (name, description, company, price, units, subcategory_id, created_at, updated_at)
+        query = "INSERT INTO product (name, description, company, price, units, subcategory_id) VALUES (%s, %s, %s, %s, %s, %s)"
+        values = (name, description, company, price, units, subcategory_id)
         cur.execute(query, values)
         conn.commit()
         return {
@@ -106,6 +101,8 @@ def update_producte(id, price, units):
     finally:
         conn.close()
 def carregar_csv(file):
+    print("carregant csv")
+    
     # id_categoria,nom_categoria,id_subcategoria,nom_subcategoria,id_producto,nom_producto,descripcion_producto,companyia,precio,unidades
     # from a csv file, fill database
     try:
@@ -113,28 +110,41 @@ def carregar_csv(file):
         cur = conn.cursor()
                     
         with file.file as f:  # Access the file object directly
-            current_timestamp = datetime.datetime.now()
-            formatted_timestamp = current_timestamp.strftime("%Y-%m-%d %H:%M:%S")
 
-            lines = f.readlines()
+            lines = f.readlines()[1:]
+            print(lines)
+            global antCategoryId
+            global antSubcategoryId
+
+            antCategoryId = -1
+            antSubcategoryId = -1
 
             for line in lines:
                 decoded_line = line.decode('utf-8')
+                values = decoded_line.strip().split(',')
+            
+                if antCategoryId != values[0]:
+                    print("a")
+                    query = "INSERT INTO category (name) VALUES ('%s');"
+                    exe_values = (values[1])
+                    cur.execute(query, exe_values)
+                    antCategoryId = values[0]
+                                    
+                if antSubcategoryId != values[2]:
+                    print("b")
+                    query = "INSERT INTO subcategory (name, category_id) VALUES ('%s', %s);"
+                    exe_values = (values[3], values[0])
+                    
+                    cur.execute(query, exe_values)
+                    antSubcategoryId = values[2]
 
-                values = decoded_line.split(',')
+                print("c")
+                query = "INSERT INTO product (name, description, company, price, units, subcategory_id) VALUES (%s, %s, %s, %s, %s, %s);"
+                exe_values = (values[5], values[6], values[7], values[8], values[9], values[2])
+                cur.execute(query, exe_values)
+                print("d")
 
-                categoriaQuery = "INSERT IGNORE INTO category (name, created_at, updated_at) VALUES (%s, %s, %s)"
-                categoriaValues = (values[1], formatted_timestamp, formatted_timestamp)
-                cur.execute(categoriaQuery, categoriaValues)
-
-                subcategoriaQuery = "INSERT IGNORE INTO subcategory (name, category_id, created_at, updated_at) VALUES (%s, %s, %s, %s)"
-                subcategoriaValues = (values[3], values[2], formatted_timestamp, formatted_timestamp)
-                cur.execute(subcategoriaQuery, subcategoriaValues)
-
-                productQuery = "INSERT IGNORE INTO product (name, description, company, price, units, subcategory_id, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-                productValues = (values[5], values[6], values[7], values[8], values[9], values[2], formatted_timestamp, formatted_timestamp)
-                cur.execute(productQuery, productValues)            
-        conn.commit()
+            conn.commit()
         return {
             "message": "Producte afegit correctament"
         }
@@ -144,5 +154,3 @@ def carregar_csv(file):
     
     finally:
         conn.close()
-
-
