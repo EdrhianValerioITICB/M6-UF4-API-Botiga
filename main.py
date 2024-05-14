@@ -62,6 +62,6 @@ def update_product(id: int, price: float, units: int ):
     return botiga_db.update_producte(id, price, units)
 
 @app.delete("/product/{id}")
-def delte_product(id: int):
+def delete_product(id: int):
     return botiga_db.delete_product(id)
 
