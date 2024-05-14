@@ -1,6 +1,7 @@
 from client import db_client
 import datetime
 
+
 def read():
     try:
         conn = db_client()
@@ -38,14 +39,8 @@ def afegir_producte(name, description, company, price, units, subcategory_id):
         conn = db_client()  
         cur = conn.cursor()
 
-        current_timestamp = datetime.datetime.now()
-        formatted_timestamp = current_timestamp.strftime("%Y-%m-%d %H:%M:%S")
-
-        created_at = formatted_timestamp
-        updated_at = formatted_timestamp
-
-        query = "INSERT INTO product (name, description, company, price, units, subcategory_id, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-        values = (name, description, company, price, units, subcategory_id, created_at, updated_at)
+        query = "INSERT INTO product (name, description, company, price, units, subcategory_id) VALUES (%s, %s, %s, %s, %s, %s)"
+        values = (name, description, company, price, units, subcategory_id)
         cur.execute(query, values)
         conn.commit()
         return {
