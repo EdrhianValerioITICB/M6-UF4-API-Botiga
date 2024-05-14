@@ -83,7 +83,9 @@ def delete_product(id):
         cur.execute(query, (id,))
 
         conn.commit()
-        
+        return {
+            "message": "Producte borrat correctament"
+        }
     except Exception as e:
         return {"status": -1, "message": f"Error de conexió{e}"}
     finally:
@@ -105,44 +107,55 @@ def update_producte(id, price, units):
         return {"status": -1, "message": f"Error de conexió{e}"}
     finally:
         conn.close()
+
+
 def carregar_csv(file):
-    # id_categoria,nom_categoria,id_subcategoria,nom_subcategoria,id_producto,nom_producto,descripcion_producto,companyia,precio,unidades
-    # from a csv file, fill database
     try:
         conn = db_client()  
         cur = conn.cursor()
                     
-        with file.file as f:  # Access the file object directly
-            current_timestamp = datetime.datetime.now()
-            formatted_timestamp = current_timestamp.strftime("%Y-%m-%d %H:%M:%S")
-
-            lines = f.readlines()
+        with file.file as f:
+            lines = f.readlines()[1:]
 
             for line in lines:
                 decoded_line = line.decode('utf-8')
+                values = decoded_line.strip().split(',')
 
-                values = decoded_line.split(',')
+                # Comprobar si la categoría existe
+                cur.execute("SELECT * FROM category WHERE category_id = %s", (values[0],))
+                category_exists = cur.fetchone()
 
-                categoriaQuery = "INSERT IGNORE INTO category (name, created_at, updated_at) VALUES (%s, %s, %s)"
-                categoriaValues = (values[1], formatted_timestamp, formatted_timestamp)
-                cur.execute(categoriaQuery, categoriaValues)
+                # Insertar o actualizar la categoría
+                if category_exists:
+                    cur.execute("UPDATE category SET name = %s WHERE category_id = %s", (values[1], values[0]))
+                else:
+                    cur.execute("INSERT INTO category (name) VALUES ('%s')", (values[1]))
 
-                subcategoriaQuery = "INSERT IGNORE INTO subcategory (name, category_id, created_at, updated_at) VALUES (%s, %s, %s, %s)"
-                subcategoriaValues = (values[3], values[2], formatted_timestamp, formatted_timestamp)
-                cur.execute(subcategoriaQuery, subcategoriaValues)
+                # Comprobar si la subcategoría existe
+                cur.execute("SELECT * FROM subcategory WHERE subcategory_id = %s", (values[2],))
+                subcategory_exists = cur.fetchone()
 
-                productQuery = "INSERT IGNORE INTO product (name, description, company, price, units, subcategory_id, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-                productValues = (values[5], values[6], values[7], values[8], values[9], values[2], formatted_timestamp, formatted_timestamp)
-                cur.execute(productQuery, productValues)            
-        conn.commit()
-        return {
-            "message": "Producte afegit correctament"
-        }
+                # Insertar o actualizar la subcategoría
+                if subcategory_exists:
+                    cur.execute("UPDATE subcategory SET name = %s WHERE subcategory_id = %s", (values[3], values[2]))
+                else:
+                    cur.execute("INSERT INTO subcategory (name, category_id) VALUES (%s, %s)", (values[3], values[0]))
+
+                # Comprobar si el producto existe
+                cur.execute("SELECT * FROM product WHERE product_id = %s", (values[4],))
+                product_exists = cur.fetchone()
+
+                # Insertar o actualizar el producto
+                if product_exists:
+                    cur.execute("UPDATE product SET name = %s, description = %s, company = %s, price = %s, units = %s WHERE product_id = %s", (values[5], values[6], values[7], values[8], values[9], values[4]))
+                else:
+                    cur.execute("INSERT INTO product (name, description, company, price, units, subcategory_id) VALUES (%s, %s, %s, %s, %s, %s)", (values[5], values[6], values[7], values[8], values[9], values[2]))
+
+            conn.commit()
+            return {"message": "Càrrega massiva de productes realitzada correctament"}
 
     except Exception as e: 
-        return {"status": -1, "message": f"Error de connexió:{e}"}
+        return {"status": -1, "message": f"Error de connexió: {e}"}
     
     finally:
         conn.close()
-
-
